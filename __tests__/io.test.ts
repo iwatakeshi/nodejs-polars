@@ -18,6 +18,8 @@ const ipcpath = path.resolve(__dirname, "./examples/foods.ipc");
 const jsonpath = path.resolve(__dirname, "./examples/foods.json");
 // eslint-disable-next-line no-undef
 const singlejsonpath = path.resolve(__dirname, "./examples/single_foods.json");
+// eslint-disable-next-line no-undef
+const financeCsvPath = path.resolve(__dirname, './examples/datasets/finance.csv')
 describe("read:csv", () => {
   it("can read from a csv file", () => {
     const df = pl.readCSV(csvpath);
@@ -113,6 +115,22 @@ describe("read:csv", () => {
       pl.Float64.toJSON(),
     ]);
   });
+
+  it("can parse real world finance csv files", () => {
+    const expected = `shape: (1, 4)
+┌───────────┬──────────────┬─────────────┬──────────────┬───────────────────┬───────────────────┐
+│ date      ┆ check_number ┆ description ┆ debit_amount ┆ credit_amount     ┆ balance           │
+│ ---       ┆ ---          ┆ ---         ┆ ---          ┆ ---               ┆ ---               │
+│ str       ┆ i64          ┆ str         ┆ str          ┆ str               ┆ str               │
+╞═══════════╪══════════════╪═════════════╪══════════════╪═══════════════════╪═══════════════════╡
+│ "6/6/24"  ┆ null         ┆ "GOV DEBIT" ┆ "$300.90"    ┆ null              ┆ "$10,000.00"      │
+│ "6/22/24" ┆ null         ┆ "TAX DEBIT" ┆ "$9,000.00"  ┆ null              ┆ "$10,000.00"      │
+│ "6/23/24" ┆ 777          ┆ "LOTTERY"   ┆ null         ┆ "$100,000,000.00" ┆ "$100,001,000.00" │
+└───────────┴──────────────┴─────────────┴──────────────┴───────────────────┴───────────────────┘`;
+    const df = pl.readCSV(financeCsvPath);
+    expect(df.toString()).toEqual(expected);
+  });
+
   it.each`
     csv                         | nullValues
     ${"a,b,c\nna,b,c\na,na,c"}  | ${"na"}
